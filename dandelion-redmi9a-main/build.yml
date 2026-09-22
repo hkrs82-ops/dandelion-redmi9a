@@ -1,0 +1,62 @@
+
+name: Build NetHunter Kernel (Redmi 9A dandelion)
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*", "V*" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git clang llvm lld gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu flex bison make bc zip unzip
+
+      - name: Clone kernel source (MiCode dandelion-q-oss)
+        run: |
+          git clone https://github.com/MiCode/Xiaomi_Kernel_OpenSource.git -b dandelion-q-oss dandelion-kernel
+
+      - name: Apply defconfig
+        run: |
+          cp -f arch/arm64/configs/dandelion_defconfig dandelion-kernel/arch/arm64/configs/dandelion_defconfig
+
+      - name: Build kernel (Image.gz-dtb)
+        working-directory: dandelion-kernel
+        env:
+          ARCH: arm64
+        run: |
+          make dandelion_defconfig
+          make -j$(nproc) CC=clang CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+          ls -l arch/arm64/boot/Image.gz-dtb
+
+      - name: Prepare AnyKernel3
+        run: |
+          git clone https://github.com/osm0sis/AnyKernel3.git AK3
+          cp -f anykernel/anykernel.sh AK3/anykernel.sh
+          cp -f dandelion-kernel/arch/arm64/boot/Image.gz-dtb AK3/zImage
+
+      - name: Pack flashable ZIP
+        run: |
+          ( cd AK3 && zip -r9 ../nethunter-dandelion-kernel.zip * )
+          ls -l nethunter-dandelion-kernel.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nethunter-dandelion-kernel
+          path: nethunter-dandelion-kernel.zip
+
+      - name: Create Release (for tags)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: nethunter-dandelion-kernel.zip
+          draft: false
+          prerelease: false
