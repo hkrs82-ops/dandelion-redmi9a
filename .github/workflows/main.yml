@@ -78,7 +78,10 @@ jobs:
           export KCFLAGS=-Wno-error
           export HOSTCFLAGS=-Wno-error
 
-          sed -i 's/dtbs: prepare scripts dtbo_check/dtbs: prepare scripts/' arch/arm64/Makefile
+          sed -i '/^[[:space:]]*dtbs:[[:space:]]*prepare[[:space:]]*scripts[[:space:]]*dtbo_check[[:space:]]*$/c\dtbs: prepare scripts' arch/arm64/Makefile
+
+          echo "Checking dtbo_check dependency:"
+          grep -n "dtbo_check" arch/arm64/Makefile || true
 
           make -j$(nproc) Image.gz-dtb
 
