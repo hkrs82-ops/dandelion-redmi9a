@@ -78,14 +78,16 @@ jobs:
           export KCFLAGS=-Wno-error
           export HOSTCFLAGS=-Wno-error
 
-          printf '\ndtbo_check:\n\t@true\n' >> Makefile
+          sed -i 's/dtbs: prepare scripts dtbo_check/dtbs: prepare scripts/' arch/arm64/Makefile
 
           make -j$(nproc) Image.gz-dtb
 
       - name: Create flashable ZIP
         run: |
           git clone --depth=1 https://github.com/osm0sis/AnyKernel3.git AnyKernel
+
           cp kernel/arch/arm64/boot/Image.gz-dtb AnyKernel/
+
           cd AnyKernel
           zip -r9 ../nethunter-dandelion-kernel.zip ./*
 
