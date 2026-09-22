@@ -55,7 +55,6 @@ jobs:
           CONFIG_PROC_FS=y
           CONFIG_SYSFS=y
           EOF
-
           cd kernel
           export ARCH=arm64
           export SUBARCH=arm64
