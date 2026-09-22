@@ -8,7 +8,6 @@
           export KCFLAGS=-Wno-error
           export HOSTCFLAGS=-Wno-error
 
-          sed -i 's/ dtbo_check//g' Makefile
-          sed -i 's/dtbo_check //g' Makefile
+          printf '\ndtbo_check:\n\t@true\n' >> Makefile
 
           make -j$(nproc) Image.gz-dtb
