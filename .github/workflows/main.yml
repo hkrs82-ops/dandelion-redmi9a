@@ -84,15 +84,15 @@ steps:
       p = Path("arch/arm64/Makefile")
       s = p.read_text()
 
-      s = s.replace(" dtbo_check", "")
-      s = s.replace("\tdtbo_check", "")
-      s = s.replace("dtbo_check ", "")
-      s = s.replace("dtbo_check\n", "\n")
+      lines = []
+      for line in s.splitlines():
+          if "dtbo_check" not in line:
+              lines.append(line)
 
-      p.write_text(s)
+      p.write_text("\n".join(lines) + "\n")
 
-      print("dtbo_check references after fix:")
-      for n, line in enumerate(s.splitlines(), 1):
+      print("Remaining dtbo_check references:")
+      for n, line in enumerate(p.read_text().splitlines(), 1):
           if "dtbo_check" in line:
               print(f"{n}: {line}")
       PY
@@ -151,4 +151,3 @@ steps:
     with:
       name: nethunter-dandelion-kernel
       path: nethunter-dandelion-kernel.zip
-```
