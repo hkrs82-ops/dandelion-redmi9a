@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
@@ -25,7 +25,8 @@ jobs:
 
       - name: Configure
         run: |
-          cp dandelion_defconfig kernel/arch/arm64/configs/dandelion_defconfig
+          wget -O kernel/arch/arm64/configs/dandelion_defconfig \
+            https://raw.githubusercontent.com/hkrs82-ops/dandelion-redmi9a/main/dandelion_defconfig
           cd kernel
           export ARCH=arm64
           export SUBARCH=arm64
